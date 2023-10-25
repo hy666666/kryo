@@ -630,6 +630,23 @@ public class Kryo {
 		}
 	}
 
+	public void writeObjectOrNull (Output output, Object object) {
+		if (output == null) throw new IllegalArgumentException("output cannot be null.");
+		if (object == null) { // 改造1: 写入空数据
+			output.writeByte(NULL);
+			return;
+		}
+
+		beginObject();
+		try {
+			if (references && writeReferenceOrNull(output, object, false)) return;
+			if (TRACE || (DEBUG && depth == 1)) log("Write", object, output.position());
+			getRegistration(object.getClass()).getSerializer().write(this, output, object);
+		} finally {
+			if (--depth == 0 && autoReset) reset();
+		}
+	}
+
 	/** Writes an object using the specified serializer. The registered serializer is ignored. */
 	public void writeObject (Output output, Object object, Serializer serializer) {
 		if (output == null) throw new IllegalArgumentException("output cannot be null.");
@@ -780,6 +797,38 @@ public class Kryo {
 		} finally {
 			if (--depth == 0 && autoReset) reset();
 		}
+	}
+
+	public <T> T readObjectOrNull0 (Input input, Class<T> type) {
+		if (input == null) throw new IllegalArgumentException("input cannot be null.");
+		if (type == null) throw new IllegalArgumentException("type cannot be null.");
+		if (checkNull(input)) {
+			return null;
+		}
+
+		beginObject();
+		try {
+			T object;
+			if (references) {
+				int stackSize = readReferenceOrNull(input, type, false);
+				if (stackSize == REF) return (T)readObject;
+				object = (T)getRegistration(type).getSerializer().read(this, input, type);
+				if (stackSize == readReferenceIds.size) reference(object);
+			} else
+				object = (T)getRegistration(type).getSerializer().read(this, input, type);
+			if (TRACE || (DEBUG && depth == 1)) log("Read", object, input.position());
+			return object;
+		} finally {
+			if (--depth == 0 && autoReset) reset();
+		}
+	}
+
+	private boolean checkNull(Input input) {
+		byte[] bytes = input.getBuffer();
+		if (bytes.length == 0) {
+			return true;
+		}
+		return bytes.length == 1 && bytes[0] == NULL;
 	}
 
 	/** Reads an object using the specified serializer. The registered serializer is ignored. */
