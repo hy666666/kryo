@@ -34,161 +34,162 @@ import java.util.Set;
 /** Serializers for {@link java.util.ImmutableCollections}, Are added as default serializers for java >= 9. */
 public final class ImmutableCollectionsSerializers {
 	public static void addDefaultSerializers (Kryo kryo) {
-		if (isClassAvailable("java.util.ImmutableCollections")) {
-			JdkImmutableListSerializer.addDefaultSerializers(kryo);
-			JdkImmutableMapSerializer.addDefaultSerializers(kryo);
-			JdkImmutableSetSerializer.addDefaultSerializers(kryo);
-		}
+        // TODO 基于1.8版本开发，暂不考虑此1.9以上版本的东西
+//		if (isClassAvailable("java.util.ImmutableCollections")) {
+//			JdkImmutableListSerializer.addDefaultSerializers(kryo);
+//			JdkImmutableMapSerializer.addDefaultSerializers(kryo);
+//			JdkImmutableSetSerializer.addDefaultSerializers(kryo);
+//		}
 	}
-
+//
 	/** Creates new serializers for all types of {@link java.util.ImmutableCollections}s and registers them.
 	 *
 	 * @param kryo the {@link Kryo} instance to register the serializers on. */
 	public static void registerSerializers (Kryo kryo) {
-		JdkImmutableListSerializer.registerSerializers(kryo);
-		JdkImmutableMapSerializer.registerSerializers(kryo);
-		JdkImmutableSetSerializer.registerSerializers(kryo);
+//		JdkImmutableListSerializer.registerSerializers(kryo);
+//		JdkImmutableMapSerializer.registerSerializers(kryo);
+//		JdkImmutableSetSerializer.registerSerializers(kryo);
 	}
-
-	public static final class JdkImmutableListSerializer extends CollectionSerializer<List<Object>> {
-
-		private JdkImmutableListSerializer () {
-			setElementsCanBeNull(false);
-		}
-
-		@Override
-		protected List<Object> create (Kryo kryo, Input input, Class<? extends List<Object>> type, int size) {
-			return new ArrayList<>(size);
-		}
-
-		@Override
-		protected List<Object> createCopy (Kryo kryo, List<Object> original) {
-			return new ArrayList<>(original.size());
-		}
-
-		@Override
-		public List<Object> read (Kryo kryo, Input input, Class<? extends List<Object>> type) {
-			List<Object> list = super.read(kryo, input, type);
-			if (list == null) {
-				return null;
-			}
-			return List.of(list.toArray());
-		}
-
-		@Override
-		public List<Object> copy (Kryo kryo, List<Object> original) {
-			List<Object> copy = super.copy(kryo, original);
-			return List.copyOf(copy);
-		}
-
-		static void addDefaultSerializers (Kryo kryo) {
-			final JdkImmutableListSerializer serializer = new JdkImmutableListSerializer();
-			kryo.addDefaultSerializer(List.of().getClass(), serializer);
-			kryo.addDefaultSerializer(List.of(1).getClass(), serializer);
-			kryo.addDefaultSerializer(List.of(1, 2, 3, 4).getClass(), serializer);
-			kryo.addDefaultSerializer(List.of(1, 2, 3, 4).subList(0, 2).getClass(), serializer);
-		}
-
-		static void registerSerializers (Kryo kryo) {
-			final JdkImmutableListSerializer serializer = new JdkImmutableListSerializer();
-			kryo.register(List.of().getClass(), serializer);
-			kryo.register(List.of(1).getClass(), serializer);
-			kryo.register(List.of(1, 2, 3, 4).getClass(), serializer);
-			kryo.register(List.of(1, 2, 3, 4).subList(0, 2).getClass(), serializer);
-		}
-	}
-
-	public static final class JdkImmutableMapSerializer extends MapSerializer<Map<Object, Object>> {
-
-		private JdkImmutableMapSerializer () {
-			setKeysCanBeNull(false);
-			setValuesCanBeNull(false);
-		}
-
-		@Override
-		protected Map<Object, Object> create (Kryo kryo, Input input, Class<? extends Map<Object, Object>> type, int size) {
-			return new HashMap<>();
-		}
-
-		@Override
-		protected Map<Object, Object> createCopy (Kryo kryo, Map<Object, Object> original) {
-			return new HashMap<>();
-		}
-
-		@Override
-		public Map<Object, Object> read (Kryo kryo, Input input, Class<? extends Map<Object, Object>> type) {
-			Map<Object, Object> map = super.read(kryo, input, type);
-			if (map == null) {
-				return null;
-			}
-			return Map.copyOf(map);
-		}
-
-		@Override
-		public Map<Object, Object> copy (Kryo kryo, Map<Object, Object> original) {
-			final Map<Object, Object> copy = super.copy(kryo, original);
-			return Map.copyOf(copy);
-		}
-
-		static void addDefaultSerializers (Kryo kryo) {
-			final JdkImmutableMapSerializer serializer = new JdkImmutableMapSerializer();
-			kryo.addDefaultSerializer(Map.of().getClass(), serializer);
-			kryo.addDefaultSerializer(Map.of(1, 2).getClass(), serializer);
-			kryo.addDefaultSerializer(Map.of(1, 2, 3, 4).getClass(), serializer);
-		}
-
-		static void registerSerializers (Kryo kryo) {
-			final JdkImmutableMapSerializer serializer = new JdkImmutableMapSerializer();
-			kryo.register(Map.of().getClass(), serializer);
-			kryo.register(Map.of(1, 2).getClass(), serializer);
-			kryo.register(Map.of(1, 2, 3, 4).getClass(), serializer);
-		}
-	}
-
-	public static final class JdkImmutableSetSerializer extends CollectionSerializer<Set<Object>> {
-
-		private JdkImmutableSetSerializer () {
-			setElementsCanBeNull(false);
-		}
-
-		@Override
-		protected Set<Object> create (Kryo kryo, Input input, Class<? extends Set<Object>> type, int size) {
-			return new HashSet<>();
-		}
-
-		@Override
-		protected Set<Object> createCopy (Kryo kryo, Set<Object> original) {
-			return new HashSet<>();
-		}
-
-		@Override
-		public Set<Object> read (Kryo kryo, Input input, Class<? extends Set<Object>> type) {
-			Set<Object> set = super.read(kryo, input, type);
-			if (set == null) {
-				return null;
-			}
-			return Set.of(set.toArray());
-		}
-
-		@Override
-		public Set<Object> copy (Kryo kryo, Set<Object> original) {
-			final Set<Object> copy = super.copy(kryo, original);
-			return Set.copyOf(copy);
-		}
-
-		static void addDefaultSerializers (Kryo kryo) {
-			final JdkImmutableSetSerializer serializer = new JdkImmutableSetSerializer();
-			kryo.addDefaultSerializer(Set.of().getClass(), serializer);
-			kryo.addDefaultSerializer(Set.of(1).getClass(), serializer);
-			kryo.addDefaultSerializer(Set.of(1, 2, 3, 4).getClass(), serializer);
-		}
-
-		static void registerSerializers (Kryo kryo) {
-			final JdkImmutableSetSerializer serializer = new JdkImmutableSetSerializer();
-			kryo.register(Set.of().getClass(), serializer);
-			kryo.register(Set.of(1).getClass(), serializer);
-			kryo.register(Set.of(1, 2, 3, 4).getClass(), serializer);
-		}
-	}
+//
+//	public static final class JdkImmutableListSerializer extends CollectionSerializer<List<Object>> {
+//
+//		private JdkImmutableListSerializer () {
+//			setElementsCanBeNull(false);
+//		}
+//
+//		@Override
+//		protected List<Object> create (Kryo kryo, Input input, Class<? extends List<Object>> type, int size) {
+//			return new ArrayList<>(size);
+//		}
+//
+//		@Override
+//		protected List<Object> createCopy (Kryo kryo, List<Object> original) {
+//			return new ArrayList<>(original.size());
+//		}
+//
+//		@Override
+//		public List<Object> read (Kryo kryo, Input input, Class<? extends List<Object>> type) {
+//			List<Object> list = super.read(kryo, input, type);
+//			if (list == null) {
+//				return null;
+//			}
+//			return List.of(list.toArray());
+//		}
+//
+//		@Override
+//		public List<Object> copy (Kryo kryo, List<Object> original) {
+//			List<Object> copy = super.copy(kryo, original);
+//			return List.copyOf(copy);
+//		}
+//
+//		static void addDefaultSerializers (Kryo kryo) {
+//			final JdkImmutableListSerializer serializer = new JdkImmutableListSerializer();
+//			kryo.addDefaultSerializer(List.of().getClass(), serializer);
+//			kryo.addDefaultSerializer(List.of(1).getClass(), serializer);
+//			kryo.addDefaultSerializer(List.of(1, 2, 3, 4).getClass(), serializer);
+//			kryo.addDefaultSerializer(List.of(1, 2, 3, 4).subList(0, 2).getClass(), serializer);
+//		}
+//
+//		static void registerSerializers (Kryo kryo) {
+//			final JdkImmutableListSerializer serializer = new JdkImmutableListSerializer();
+//			kryo.register(List.of().getClass(), serializer);
+//			kryo.register(List.of(1).getClass(), serializer);
+//			kryo.register(List.of(1, 2, 3, 4).getClass(), serializer);
+//			kryo.register(List.of(1, 2, 3, 4).subList(0, 2).getClass(), serializer);
+//		}
+//	}
+//
+//	public static final class JdkImmutableMapSerializer extends MapSerializer<Map<Object, Object>> {
+//
+//		private JdkImmutableMapSerializer () {
+//			setKeysCanBeNull(false);
+//			setValuesCanBeNull(false);
+//		}
+//
+//		@Override
+//		protected Map<Object, Object> create (Kryo kryo, Input input, Class<? extends Map<Object, Object>> type, int size) {
+//			return new HashMap<>();
+//		}
+//
+//		@Override
+//		protected Map<Object, Object> createCopy (Kryo kryo, Map<Object, Object> original) {
+//			return new HashMap<>();
+//		}
+//
+//		@Override
+//		public Map<Object, Object> read (Kryo kryo, Input input, Class<? extends Map<Object, Object>> type) {
+//			Map<Object, Object> map = super.read(kryo, input, type);
+//			if (map == null) {
+//				return null;
+//			}
+//			return Map.copyOf(map);
+//		}
+//
+//		@Override
+//		public Map<Object, Object> copy (Kryo kryo, Map<Object, Object> original) {
+//			final Map<Object, Object> copy = super.copy(kryo, original);
+//			return Map.copyOf(copy);
+//		}
+//
+//		static void addDefaultSerializers (Kryo kryo) {
+//			final JdkImmutableMapSerializer serializer = new JdkImmutableMapSerializer();
+//			kryo.addDefaultSerializer(Map.of().getClass(), serializer);
+//			kryo.addDefaultSerializer(Map.of(1, 2).getClass(), serializer);
+//			kryo.addDefaultSerializer(Map.of(1, 2, 3, 4).getClass(), serializer);
+//		}
+//
+//		static void registerSerializers (Kryo kryo) {
+//			final JdkImmutableMapSerializer serializer = new JdkImmutableMapSerializer();
+//			kryo.register(Map.of().getClass(), serializer);
+//			kryo.register(Map.of(1, 2).getClass(), serializer);
+//			kryo.register(Map.of(1, 2, 3, 4).getClass(), serializer);
+//		}
+//	}
+//
+//	public static final class JdkImmutableSetSerializer extends CollectionSerializer<Set<Object>> {
+//
+//		private JdkImmutableSetSerializer () {
+//			setElementsCanBeNull(false);
+//		}
+//
+//		@Override
+//		protected Set<Object> create (Kryo kryo, Input input, Class<? extends Set<Object>> type, int size) {
+//			return new HashSet<>();
+//		}
+//
+//		@Override
+//		protected Set<Object> createCopy (Kryo kryo, Set<Object> original) {
+//			return new HashSet<>();
+//		}
+//
+//		@Override
+//		public Set<Object> read (Kryo kryo, Input input, Class<? extends Set<Object>> type) {
+//			Set<Object> set = super.read(kryo, input, type);
+//			if (set == null) {
+//				return null;
+//			}
+//			return Set.of(set.toArray());
+//		}
+//
+//		@Override
+//		public Set<Object> copy (Kryo kryo, Set<Object> original) {
+//			final Set<Object> copy = super.copy(kryo, original);
+//			return Set.copyOf(copy);
+//		}
+//
+//		static void addDefaultSerializers (Kryo kryo) {
+//			final JdkImmutableSetSerializer serializer = new JdkImmutableSetSerializer();
+//			kryo.addDefaultSerializer(Set.of().getClass(), serializer);
+//			kryo.addDefaultSerializer(Set.of(1).getClass(), serializer);
+//			kryo.addDefaultSerializer(Set.of(1, 2, 3, 4).getClass(), serializer);
+//		}
+//
+//		static void registerSerializers (Kryo kryo) {
+//			final JdkImmutableSetSerializer serializer = new JdkImmutableSetSerializer();
+//			kryo.register(Set.of().getClass(), serializer);
+//			kryo.register(Set.of(1).getClass(), serializer);
+//			kryo.register(Set.of(1, 2, 3, 4).getClass(), serializer);
+//		}
+//	}
 
 }

@@ -28,6 +28,7 @@ import com.esotericsoftware.kryo.io.Output;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -83,7 +84,8 @@ public class RecordSerializer<T> extends ImmutableSerializer<T> {
 	private boolean fixedFieldTypes = false;
 
 	/** @deprecated use {@link #RecordSerializer(Class) instead} */
-	@Deprecated(forRemoval = true)
+//	@Deprecated(forRemoval = true) TODO 1.9的语法
+	@Deprecated
 	public RecordSerializer() {
 	}
 
@@ -261,7 +263,8 @@ public class RecordSerializer<T> extends ImmutableSerializer<T> {
 		Constructor<T> canonicalConstructor;
 		try {
 			canonicalConstructor = recordType.getConstructor(paramTypes);
-			if (!canonicalConstructor.canAccess(null)) {
+			// TODO 9语法改造 canonicalConstructor.canAccess(null) => Modifier.isPublic(canonicalConstructor.getModifiers())
+			if (!Modifier.isPublic(canonicalConstructor.getModifiers())) {
 				canonicalConstructor.setAccessible(true);
 			}
 		} catch (Exception e) {
